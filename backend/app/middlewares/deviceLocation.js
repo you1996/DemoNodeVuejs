@@ -1,10 +1,10 @@
 module.exports = function deviceLocation(req) {
   var device, location, useragent;
   const userAgent = req.headers["user-agent"];
-var useragent = JSON.parse(userAgent)
+  var useragent = JSON.parse(userAgent);
   const request = require("request");
   const ip = RequestIp.getClientIp(req);
-  
+
   device = useragent.filter(([key, value]) => value == true);
   // eslint-disable-next-line
   console.log(device);

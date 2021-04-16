@@ -9,6 +9,7 @@ const RequestIp = require("@supercharge/request-ip");
 var jwt = require("jsonwebtoken");
 const cdigit = require("cdigit");
 var bcrypt = require("bcryptjs");
+const { replaceOne } = require("../models/user.model");
 //var geoip = require('geoip-lite');
 //var ipLocation = require("ip-location");
 
@@ -163,11 +164,6 @@ exports.qrcodeGuest = (req, res) => {
 
   const request = require("request");
   const ip = RequestIp.getClientIp(req);
-
-  //var useragent = JSON.parse(userAgent);
-  //device = userAgent.filter(([key, value]) => value == true);
-  // eslint-disable-next-line
-  //console.log(typeof userAgent);
   const asArray = Object.entries(userAgent);
 
   // Use `filter()` to filter the key/value array
@@ -176,17 +172,19 @@ exports.qrcodeGuest = (req, res) => {
     // eslint-disable-next-line
     console.log(element);
   });
-  // Convert the key/value array back to an object:
-  // `{ 'BUF': 11, 'MIA': 9 }`
-  const atLeast9WinsObject = Object.fromEntries(atLeast9Wins);
-  atLeast9WinsObject.map((element) => {});
+
+  const atLeast9WinsObject = Object.fromEntries(atLeast9Win);
+  var info = {}
+  for (prop in atLeast9WinsObject) {
+    info = {...info , prop}
+  }
   // eslint-disable-next-line
-  console.log(atLeast9WinsObject);
+  console.log(info);
   request(
     "https://api.ipgeolocationapi.com/geolocate/" + ip + "",
     function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        location = JSON.parse(body.name); // Show the HTML for the Google homepage.
+        location = JSON.parse(body.name); 
         // eslint-disable-next-line
         console.log(location);
       }
@@ -277,23 +275,7 @@ exports.resetPass = (req, res) => {
       }
     });
 
-    // if (!passwordIsValid) {
-    //   return res.status(401).send({
-    //     accessToken: null,
-    //     message: "Invalid Password!",
-    //   });
-    // }
-
-    // var token = jwt.sign({ id: user.email }, config.secret, {
-    //   expiresIn: 500, // 24 hours
-    // });
-    // res.status(200).send({
-    //   id: user._id,
-    //   username: user.username,
-    //   email: user.email,
-    //   roles: authorities,
-    //   Token: token,
-    // });
+    
   });
 };
 exports.emailCodelogin = (req, res) => {
@@ -349,9 +331,6 @@ exports.confirmCode = (req, res) => {
   var Code = req.body.code;
   // eslint-disable-next-line
   console.log(req.body);
-  // var lastNum= Code.charAt(Code.length-1)
-  // var basecode= Code.slice(0 , Code.length-1)
-  // eslint-disable-next-line
   let validateCode = cdigit.luhn.validate(Code);
   if (validateCode) {
     res.status(200).send({ message: "Code verified" });
