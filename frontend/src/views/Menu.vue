@@ -45,7 +45,7 @@
       <b-col align-self="stretch"
         ><div class="accordion">
           <b-collapse id="collapse-1" visible accordion="my-accordion">
-            <b-col><login id="" /> </b-col
+            <b-col><login id="" /></b-col
           ></b-collapse>
           <b-collapse id="collapse-2" accordion="my-accordion">
             <b-col> <register /> </b-col></b-collapse

@@ -1,7 +1,7 @@
 <template>
   <div class="col-md-12">
     <div v-if="$route.params.token == null" class="card card-container">
-      <h6>enter you email</h6>
+      <h6>Enter you email</h6>
 
       <form name="form" @submit.prevent="handlereset">
         <div class="form-group">
@@ -28,7 +28,7 @@
               v-show="loading"
               class="spinner-border spinner-border-sm"
             ></span>
-            <span>Login</span>
+            <span>Send me the link !</span>
           </button>
         </div>
         <div class="form-group">

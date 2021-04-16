@@ -17,7 +17,7 @@
             name="userinput"
           />
 
-          <button v-b-toggle.collapse-4 class="btn btn-primary btn-block">
+          <button  class="btn btn-primary btn-block">
             generate
           </button>
           <div
