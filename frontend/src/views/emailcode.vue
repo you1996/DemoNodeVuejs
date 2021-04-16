@@ -108,8 +108,6 @@ export default {
           this.$store.dispatch('auth/emailcode', this.user).then(
             response => {
               this.loading = false;
-              // eslint-disable-next-line
-              console.log(response);
               this.sent = true;
               this.$bvToast.toast(response.confirmation, {
                 title: 'Notification',
@@ -119,8 +117,6 @@ export default {
               });
             },
             error => {
-              // eslint-disable-next-line
-              console.log(this.user);
               this.loading = false;
               this.message =
                 (error.response &&
@@ -143,19 +139,9 @@ export default {
           }
 
           if (this.code) {
-            // this.user.email = decodedToken.email;
-            // eslint-disable-next-line
-            console.log(this.user.email);
-            // eslint-disable-next-line
-            console.log(this.code);
             this.$store.dispatch('auth/confirmcode', this.code).then(
               response => {
                 this.loading = false;
-                // eslint-disable-next-line
-                console.log(response);
-                // eslint-disable-next-line
-                //console.log(this.user);
-
                 this.$bvToast.toast(
                   'code verified, you will be redirected to the home page',
                   {
@@ -170,8 +156,6 @@ export default {
                 }, 1800);
               },
               error => {
-                // eslint-disable-next-line
-                console.log(this.user);
                 this.$bvToast.toast((error.response &&
                     error.response.data &&
                     error.response.data.message) ||

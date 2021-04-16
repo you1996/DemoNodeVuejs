@@ -39,25 +39,13 @@ new Vue({
   router,
   store,
  beforeMount() {
-       // eslint-disable-next-line
-       console.log("jkk");
-    // eslint-disable-next-line
-    console.log(store.state.auth.user);
 
     // eslint-disable-next-line
     axios.interceptors.request.use(req => {
       if (store.state.auth.user != null ) {
-        // eslint-disable-next-line
-        console.log('llll');
         var decodedToken = jwt_decode(store.state.auth.user.accessToken);
         var expiration = decodedToken.exp;
-        // eslint-disable-next-line
-        console.log(expiration);
         var time = expiration - Math.floor(Date.now() / 1000);
-        // eslint-disable-next-line
-        console.log(expiration, time);
-        // eslint-disable-next-line
-        console.log(store.state.auth.expi);
         if (time < 0) {
           store.state.auth.expi = false
           store.dispatch('auth/logout');
@@ -70,8 +58,6 @@ new Vue({
           router.push('/')
           
         }
-        // eslint-disable-next-line
-        console.log(store.state.auth.expi);
         
       }
       return req;

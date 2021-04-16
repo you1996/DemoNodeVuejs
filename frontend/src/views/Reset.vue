@@ -149,72 +149,49 @@ export default {
     },
     confirmReset() {
       this.loading = true;
-      this.$validator.validateAll().then(
-        isValid => {
-          if (!isValid) {
-            this.loading = false;
-            return;
-          }
-          this.$store
-            .dispatch('auth/confirmtoken', this.$route.params.token)
-            .then(response => {
-              this.loading = false;
-              this.confirmed = true;
-              //   // eslint-disable-next-line
-              //   console.log(this.user);
-              // eslint-disable-next-line
-              console.log(this.user.password);
-              var decodedToken = jwt_decode(this.$route.params.token);
-
-              // eslint-disable-next-line
-              console.log(response);
-
-              if (this.user.password && this.confirmed) {
-                this.user.email = decodedToken.email;
-                // eslint-disable-next-line
-                console.log(this.user.email);
-                this.$store.dispatch('auth/confirmreset', this.user).then(
-                  response => {
-                    this.loading = false;
-                    // eslint-disable-next-line
-                    console.log(response);
-                    // eslint-disable-next-line
-                    //console.log(this.user);
-
-                    this.$bvToast.toast('password has been changed', {
-                      title: 'Confirmation',
-                      variant: 'info',
-                      toaster: 'b-toaster-top-center',
-                      solid: true
-                    });
-                  },
-                  error => {
-                    // eslint-disable-next-line
-                    console.log(this.user);
-                    this.$bvToast.toast(error.response.data.message, {
-                      title: error.response,
-                      variant: 'danger',
-                      toaster: 'b-toaster-top-center',
-                      solid: true
-                    });
-                    this.loading = false;
-                    this.message =
-                      (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                      error.message ||
-                      error.toString();
-                  }
-                );
-                this.$router.push('/');
-              }
-            });
-        },
-        error => {
-          // eslint-disable-next-line
-          console.log(error);
+      this.$validator.validateAll().then(isValid => {
+        if (!isValid) {
+          this.loading = false;
+          return;
         }
-      );
+        this.$store
+          .dispatch('auth/confirmtoken', this.$route.params.token)
+          .then(response => {
+            this.loading = false;
+            this.confirmed = true;
+            var decodedToken = jwt_decode(this.$route.params.token);
+            if (this.user.password && this.confirmed) {
+              this.user.email = decodedToken.email;
+              this.$store.dispatch('auth/confirmreset', this.user).then(
+                response => {
+                  this.loading = false;
+                  this.$bvToast.toast('password has been changed', {
+                    title: 'Confirmation',
+                    variant: 'info',
+                    toaster: 'b-toaster-top-center',
+                    solid: true
+                  });
+                },
+                error => {
+                  this.$bvToast.toast(error.response.data.message, {
+                    title: error.response,
+                    variant: 'danger',
+                    toaster: 'b-toaster-top-center',
+                    solid: true
+                  });
+                  this.loading = false;
+                  this.message =
+                    (error.response &&
+                      error.response.data &&
+                      error.response.data.message) ||
+                    error.message ||
+                    error.toString();
+                }
+              );
+              this.$router.push('/');
+            }
+          });
+      });
     }
   }
 };

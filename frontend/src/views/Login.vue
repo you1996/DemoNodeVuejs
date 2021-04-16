@@ -100,8 +100,6 @@ export default {
               this.$router.push('/profile');
             },
             error => {
-              // eslint-disable-next-line
-              console.log(this.user);
               this.loading = false;
               this.message =
                 (error.response && error.response.data && error.response.data.message) ||

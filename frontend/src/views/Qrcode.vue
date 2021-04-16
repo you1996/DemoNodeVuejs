@@ -111,15 +111,13 @@ export default {
               this.qrValue = response.accessToken.substr(
                 response.accessToken.length - 5
               );
-              // eslint-disable-next-line
-              console.log(this.qrValue);
+     
 
               this.error = false;
               this.generated = true;
             },
             error => {
-              // eslint-disable-next-line
-              console.log(this.user);
+     
               this.loading = false;
               this.message =
                 (error.response &&
@@ -143,8 +141,7 @@ export default {
           this.$store.state.auth.user.accessToken.length - 5
         );
         if (codeToverify == this.code) {
-          // eslint-disable-next-line
-          console.log('gooooooooooood');
+
           this.$router.push('/home');
         } else {
           this.errorverif = true;

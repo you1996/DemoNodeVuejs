@@ -13,10 +13,6 @@ export const auth = {
       return AuthService.login(user).then(
         user => {
           commit('loginSuccess', user);
-          // eslint-disable-next-line
-          console.log(user);
-          // eslint-disable-next-line
-          console.log('hello');
           return Promise.resolve(user);
         },
         error => {
@@ -31,13 +27,10 @@ export const auth = {
       return AuthService.loginGuest(user).then(
         user => {
           commit('loginSuccess', user);
-         
           return Promise.resolve(user);
         },
         error => {
           commit('loginFailure');
-          // eslint-disable-next-line
-          console.log(error);
           return Promise.reject(error);
         }
       );
@@ -45,14 +38,10 @@ export const auth = {
     emailcode({ commit }, user) {
       return AuthService.emailCode(user).then(
         user => {
-          //commit('loginSuccess', user);
-         
           return Promise.resolve(user);
         },
         error => {
           commit('loginFailure');
-          // eslint-disable-next-line
-          console.log(error);
           return Promise.reject(error);
         }
       );
@@ -60,9 +49,6 @@ export const auth = {
     confirmcode({ commit }, code) {
       return AuthService.confirmcode(code).then(
         code => {
-         // commit('loginSuccess', user);
-         // eslint-disable-next-line
-          console.log(code);
           return Promise.resolve(code);
         },
         error => {
@@ -93,14 +79,12 @@ export const auth = {
       return AuthService.confirmPass(user).then(
         user => {
           commit('loginSuccess', user);
-          // eslint-disable-next-line
-          console.log('hello');
+  
           return Promise.resolve(user);
         },
         error => {
           commit('loginFailure');
-          // eslint-disable-next-line
-          console.log(error);
+
           return Promise.reject(error);
         }
       );
@@ -112,8 +96,7 @@ export const auth = {
         },
         error => {
           commit('loginFailure');
-          // eslint-disable-next-line
-          console.log(error);
+
           return Promise.reject(error);
         }
       );
