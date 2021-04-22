@@ -49,7 +49,7 @@ couch
   );
 db.mongoose
   .connect(
-    `mongodb+srv://chgh:adminrootnimda@cluster0.cmtlq.mongodb.net/Cluster0?retryWrites=true&w=majority`,
+    `mongodb+srv://chgh:passwordmongo@cluster0.cmtlq.mongodb.net/Cluster0?retryWrites=true&w=majority`,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
