@@ -251,7 +251,7 @@ exports.resetPass = (req, res) => {
         host: "smtp.gmail.com",
         auth: {
           user: "youssribentaghalline@gmail.com",
-          pass: "azertyuiop22836598",
+          pass: "password",
         },
       })
     );
