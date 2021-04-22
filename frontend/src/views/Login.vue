@@ -57,7 +57,7 @@
             {{ message }}
           </div>
         </div>
-        <a href="/reset">You forgot your passeword ?</a>
+        <a href="/reset">You forgot your password ?</a>
       </form>
     </div>
   </div>
