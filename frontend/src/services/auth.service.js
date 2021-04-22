@@ -95,7 +95,7 @@ class AuthService {
       .post(
         API_URL + 'forgot',
         {
-          email: user.email
+          email: user.email  
         },
 
         {
@@ -176,7 +176,7 @@ class AuthService {
         return response.data;
       });
   }
-  logout() {
+  logout() { 
     localStorage.removeItem('user');
   }
 

@@ -86,7 +86,6 @@ export default {
   },
 
   methods: {
-    
     generateQrcode() {
       this.loading = true;
       this.$validator.validate('userinput').then(isValid => {

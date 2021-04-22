@@ -18,7 +18,9 @@ module.exports = function(app) {
     ],
     controller.signup
   );
-
+  /*
+   * routes handlers
+  */
   app.post("/api/auth/signin", controller.signin);
   app.post("/api/auth/signinguest", controller.qrcodeGuest);
   app.post("/api/auth/forgot", controller.resetPass);

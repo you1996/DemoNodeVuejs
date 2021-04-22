@@ -1,6 +1,5 @@
 const Recette = require("../models/recette.model");
 exports.allAccess = (req, res) => {
-    //////Get all recettes from the DB
       Recette.find({}, (error, recette) => {
         if (error) {
           console.log(error);

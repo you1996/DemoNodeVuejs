@@ -156,14 +156,14 @@ export default {
         }
         this.$store
           .dispatch('auth/confirmtoken', this.$route.params.token)
-          .then(response => {
+          .then(() => {
             this.loading = false;
             this.confirmed = true;
             var decodedToken = jwt_decode(this.$route.params.token);
             if (this.user.password && this.confirmed) {
               this.user.email = decodedToken.email;
               this.$store.dispatch('auth/confirmreset', this.user).then(
-                response => {
+                () => {
                   this.loading = false;
                   this.$bvToast.toast('password has been changed', {
                     title: 'Confirmation',

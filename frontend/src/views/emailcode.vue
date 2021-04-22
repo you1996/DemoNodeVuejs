@@ -140,7 +140,7 @@ export default {
 
           if (this.code) {
             this.$store.dispatch('auth/confirmcode', this.code).then(
-              response => {
+              () => {
                 this.loading = false;
                 this.$bvToast.toast(
                   'code verified, you will be redirected to the home page',
@@ -152,23 +152,25 @@ export default {
                   }
                 );
                 setTimeout(() => {
-                  this.$router.push('/home');
+                  this.$router.push('/');
                 }, 1800);
               },
               error => {
-                this.$bvToast.toast((error.response &&
+                this.$bvToast.toast(
+                  (error.response &&
                     error.response.data &&
                     error.response.data.message) ||
-                  error.message ||
-                  error.toString(), {
-                  title: 'Error',
-                  variant: 'danger',
-                  toaster: 'b-toaster-top-center',
-                  solid: true
-                });
+                    error.message ||
+                    error.toString(),
+                  {
+                    title: 'Error',
+                    variant: 'danger',
+                    toaster: 'b-toaster-top-center',
+                    solid: true
+                  }
+                );
                 this.loading = false;
-                this.message ="error"
-                  
+                this.message = 'error';
               }
             );
           }

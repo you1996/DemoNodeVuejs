@@ -21,6 +21,9 @@
     <ul>
       <li v-for="(role,index) in currentUser.roles" :key="index">{{role}}</li>
     </ul>
+    <ul>
+      <li v-for="(informa,index) in info" :key="index">{{informa}}</li>
+    </ul>
   </div>
 </template>
 
@@ -30,6 +33,10 @@ export default {
   computed: {
     currentUser() {
       return this.$store.state.auth.user;
+    },
+    info() {
+       var informations = this.$store.state.auth.user.info.split(" ");
+       return informations
     }
   },
   mounted() {

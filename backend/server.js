@@ -66,13 +66,12 @@ db.mongoose
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
+  res.json({ message: "Welcome to the authentication demo application." });
 });
 
 // routes
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
-const cdigit = require('cdigit');
  
 
 // set port, listen for requests
@@ -80,7 +79,9 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-
+/**
+ * Create the three roles(user , moderator , admin) collections in the database
+ */
 function initial() {
   Role.estimatedDocumentCount((err, count) => {
     if (!err && count === 0) {

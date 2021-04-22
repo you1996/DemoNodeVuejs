@@ -120,6 +120,8 @@ label {
 }
 
 .card-container.card {
+
+
   max-width: 350px !important;
   padding: 40px 40px;
 }

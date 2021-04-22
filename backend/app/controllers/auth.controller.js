@@ -3,21 +3,46 @@ const db = require("../models");
 const User = db.user;
 const Role = db.role;
 const nodemailer = require("nodemailer"),
-  useragent = require("express-useragent");
-var smtpTransport = require("nodemailer-smtp-transport");
-const RequestIp = require("@supercharge/request-ip");
+  smtpTransport = require("nodemailer-smtp-transport");
 var jwt = require("jsonwebtoken");
 const cdigit = require("cdigit");
 var bcrypt = require("bcryptjs");
-const { replaceOne } = require("../models/user.model");
-//var geoip = require('geoip-lite');
-//var ipLocation = require("ip-location");
 
+/**
+* check if a user exist or no in the data base, if no then save it and contribute a random role (just)
+  for testing, in production roles are not random
+* @param {object} req user credentials
+* @returns nothing
+*/
 exports.signup = (req, res) => {
+  var userAgent, request;
+  var ArrayInfo = [],
+    currentUserInfo,
+    info = "";
+  userAgent = req.useragent;
+  request = require("request");
+  ArrayInfo = Object.entries(userAgent);
+  currentUserInfo = Object.fromEntries(
+    ArrayInfo.filter(([key, value]) => value == true)
+  );
+  for (prop in currentUserInfo) {
+    var s = prop.replace("is", "");
+    info = info.concat(s + " ");
+  }
+  request(
+    "https://api.ipgeolocationapi.com/geolocate/197.5.129.6",
+    function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var location = JSON.parse(response.body);
+        info = info.concat(location.name);
+      }
+    }
+  );
   const user = new User({
     username: req.body.username,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 8),
+    informations: info,
   });
 
   user.save((err, user) => {
@@ -72,7 +97,20 @@ exports.signup = (req, res) => {
   });
 };
 
+/**
+ * find the user record, sign a jwt token , verify the device connection
+ * @param {string} req username
+ * @returns {object} user record and a jwt token
+ */
 exports.signin = (req, res) => {
+  var authorities = [],
+    token,
+    passwordIsValid,
+    userAgent,
+    request;
+  var ArrayInfo = [],
+    currentUserInfo,
+    info = "";
   User.findOne({
     username: req.body.username,
   })
@@ -82,17 +120,11 @@ exports.signin = (req, res) => {
         res.status(500).send({ message: err });
         return;
       }
-      // eslint-disable-next-line
-      console.log(req.body);
-
       if (!user) {
         return res.status(404).send({ message: "User Not found." });
       }
-
-      var passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
+      //compare the hached passwords(the one in the database and the user input)
+      passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
 
       if (!passwordIsValid) {
         return res.status(401).send({
@@ -100,130 +132,108 @@ exports.signin = (req, res) => {
           message: "Invalid Password!",
         });
       }
-
-      var token = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: 50, // 24 hours
+      //sign a jwt token with an expiration date
+      token = jwt.sign({ id: user.id }, config.secret, {
+        expiresIn: 900,
       });
-
-      var authorities = [];
 
       for (let i = 0; i < user.roles.length; i++) {
         authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
       }
-      res.status(200).send({
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        roles: authorities,
-        accessToken: token,
-      });
-    });
-};
-exports.confirmPass = (req, res) => {
-  User.findOne({
-    email: req.body.user.email,
-  })
-    .populate("roles", "-__v")
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
+      //get the useragent
+      userAgent = req.useragent;
+      request = require("request");
+      ArrayInfo = Object.entries(userAgent);
+      currentUserInfo = Object.fromEntries(
+        ArrayInfo.filter(([key, value]) => value == true)
+      );
+      for (prop in currentUserInfo) {
+        var s = prop.replace("is", "");
+        info = info.concat(s + " ");
       }
-      // eslint-disable-next-line
-      console.log(user);
-
-      if (!user) {
-        return res.status(404).send({ message: "User Not found." });
-      }
-
-      User.findOneAndUpdate(
-        { email: req.body.user.email },
-        { password: bcrypt.hashSync(req.body.user.password, 8) },
-        {}
-      ).exec((err, user) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
+      request(
+        "https://api.ipgeolocationapi.com/geolocate/197.5.129.6",
+        function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            var location = JSON.parse(response.body);
+            info = info.concat(location.name);
+          }
         }
-
-        res.status(200).send({
-          message: "Your password has been changed now login!",
+      );
+      if(user.informations != info){
+        console.log(user.username)
+        console.log(info)
+        ////////////////
+        let transporter = nodemailer.createTransport(
+          smtpTransport({
+            service: "gmail",
+            host: "smtp.gmail.com",
+            auth: {
+              user: "youssribentaghalline@gmail.com",
+              pass: "azertyuiop22836598",
+            },
+          })
+        );
+       
+        const mailOptions = {
+          from: "youssribentaghalline@gmail.com",
+          to: user.email,
+          subject: "Device Notification",
+          html:
+            'Another device detected : '+ info +'',
+        };
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            return res.status(401).send({
+              
+              message: "There is an error try again!",
+            });
+          } else {
+            console.log("Email sent: " + info.response);
+            
+          }
         });
-      });
+        ////////////////////
+
+      }
+      
+      setTimeout(() => {
+        res.status(200).send({
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          roles: authorities,
+          accessToken: token,
+          info: info,
+        });
+      }, 1000);
     });
 };
+
+/**
+ * generate a jwt token and send it back to the frontend
+ * @param {object} req user object
+ * @param {string} res token
+ * @returns a token if ok else error message
+ */
 exports.qrcodeGuest = (req, res) => {
-  var user = req.body.username;
-  // eslint-disable-next-line
-  console.log(user);
-  var token = jwt.sign({ user: user }, config.secret, {
-    expiresIn: 20, // 24 hours
+  var user, token;
+  user = req.body.username;
+  token = jwt.sign({ user: user }, config.secret, {
+    expiresIn: 800, // 24 hours
   });
-  var device, location;
-  const userAgent = req.useragent;
-
-  const request = require("request");
-  const ip = RequestIp.getClientIp(req);
-  const asArray = Object.entries(userAgent);
-
-  // Use `filter()` to filter the key/value array
-  const atLeast9Win = asArray.filter(([key, value]) => value == true);
-  const atLeast9Wins = atLeast9Win.map((element) => {
-    // eslint-disable-next-line
-    console.log(element);
-  });
-
-  const atLeast9WinsObject = Object.fromEntries(atLeast9Win);
-  var info = {}
-  for (prop in atLeast9WinsObject) {
-    info = {...info , prop}
-  }
-  // eslint-disable-next-line
-  console.log(info);
-  request(
-    "https://api.ipgeolocationapi.com/geolocate/" + ip + "",
-    function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        location = JSON.parse(body.name); 
-        // eslint-disable-next-line
-        console.log(location);
-      }
-    }
-  );
-  // var ip = "197.5.129.6";
-  // ipLocation(ip, function (err, data) {
-  //   // eslint-disable-next-line
-  //   console.log(data);
-  // });
-
-  // eslint-disable-next-line
-  //console.log(geo);
-  // letip =
-  //   req.headers["x-forwarded-for"] ||
-  //    ||
-  //    ||
-
-  // eslint-disable-next-line
-  // console.log(ip);
   if (token) {
     return res.status(200).send({ accessToken: token });
   } else {
     return res.status(401).send({ message: "can't generate token! try again" });
   }
 };
-exports.confirmtoken = (req, res) => {
-  var token = req.body.token;
-  console.log(token);
 
-  jwt.verify(token, config.secret, (err, decoded) => {
-    if (err) {
-      console.log(err);
-      return res.status(401).send({ message: err });
-    }
-
-    res.status(200).send({ message: "token verified" });
-  });
-};
+/**
+ * send the reset link to the user email
+ * @param {string} req user input(email)
+ * @param {object} res token
+ */
 exports.resetPass = (req, res) => {
   User.findOne({
     email: req.body.email,
@@ -232,9 +242,6 @@ exports.resetPass = (req, res) => {
       res.status(500).send({ message: err });
       return;
     }
-    // eslint-disable-next-line
-    console.log(req.body);
-
     if (!user) {
       return res.status(404).send({ message: "User Not found." });
     }
@@ -249,7 +256,7 @@ exports.resetPass = (req, res) => {
       })
     );
     var token = jwt.sign({ email: user.email }, config.secret, {
-      expiresIn: 10000, // 24 hours
+      expiresIn: 10000,
     });
     const mailOptions = {
       from: "youssribentaghalline@gmail.com",
@@ -274,11 +281,66 @@ exports.resetPass = (req, res) => {
         });
       }
     });
-
-    
   });
 };
+/**
+ * verifies the token
+ * @param {string} req token sent in the reset link
+ * @param {httpcode} res if OK => 200 else => 401
+ */
+exports.confirmtoken = (req, res) => {
+  var token = req.body.token;
+  jwt.verify(token, config.secret, (err, decoded) => {
+    if (err) {
+      console.log(err);
+      return res.status(401).send({ message: err });
+    }
+
+    res.status(200).send({ message: "token verified" });
+  });
+};
+/**
+ * find the user record and update the password
+ * @param {object} req user object
+ * @param {string} res if OK=> 200 else=> 500 error
+ */
+exports.confirmPass = (req, res) => {
+  User.findOne({
+    email: req.body.user.email,
+  })
+    .populate("roles", "-__v")
+    .exec((err, user) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+      if (!user) {
+        return res.status(404).send({ message: "User Not found." });
+      }
+      //find and update the user password
+      User.findOneAndUpdate(
+        { email: req.body.user.email },
+        { password: bcrypt.hashSync(req.body.user.password, 8) },
+        {}
+      ).exec((err, user) => {
+        if (err) {
+          res.status(500).send({ message: err });
+          return;
+        }
+
+        res.status(200).send({
+          message: "Your password has been changed now login!",
+        });
+      });
+    });
+};
+/**
+ * check the existance of a user and send the code to this address
+ * @param {string} req user email
+ * @param {string} res email ,http response
+ */
 exports.emailCodelogin = (req, res) => {
+  var transporter, code, mailOptions;
   User.findOne({
     email: req.body.email,
   }).exec((err, user) => {
@@ -286,13 +348,10 @@ exports.emailCodelogin = (req, res) => {
       res.status(500).send({ message: err });
       return;
     }
-    // eslint-disable-next-line
-    console.log(req.body);
-
     if (!user) {
       return res.status(404).send({ message: "User Not found." });
     }
-    let transporter = nodemailer.createTransport(
+    transporter = nodemailer.createTransport(
       smtpTransport({
         service: "gmail",
         host: "smtp.gmail.com",
@@ -302,11 +361,9 @@ exports.emailCodelogin = (req, res) => {
         },
       })
     );
-    var code = cdigit.luhn.generate(
-      Math.floor(Math.random() * (99999 - 10000)) + 10000
-    );
-    console.log(code);
-    const mailOptions = {
+    //generates a random alphanumeric code
+    code = cdigit.mod37_2.generate(Math.random().toString(36).substr(2, 6));
+    mailOptions = {
       from: "youssribentaghalline@gmail.com",
       to: user.email,
       subject: "Verification Code",
@@ -327,14 +384,17 @@ exports.emailCodelogin = (req, res) => {
     });
   });
 };
+/** 
+Verifies the returned code and confirm 
+* @param {string} req code
+* @return confirmation (true or false)
+*/
 exports.confirmCode = (req, res) => {
   var Code = req.body.code;
-  // eslint-disable-next-line
-  console.log(req.body);
-  let validateCode = cdigit.luhn.validate(Code);
+  let validateCode = cdigit.mod37_2.validate(Code);
   if (validateCode) {
     res.status(200).send({ message: "Code verified" });
   } else {
-    res.status(404).send({ message: "Invalid Code" });
+    res.status(500).send({ message: "Invalid Code" });
   }
 };

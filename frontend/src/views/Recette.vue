@@ -7,7 +7,13 @@
         ></router-link>
       </b-col>
     </div>
-    <b-row v-if="role == 'admin' " align-h="center" class="text-center">
+    <b-row
+      v-bind:class="[
+        this.$store.state.auth.user.roles ? 'none' : 'activeforguest'
+      ]"
+      align-h="center"
+      class="text-center"
+    >
       <h5 class="text-white">Saisir Vos Ingrédients :</h5>
       <b-col sm="3">
         <b-form-input
@@ -62,15 +68,14 @@
         </b-col>
       </b-row>
       <b-button class="button" variant="danger" @click="filterRecettes()"
-      ><b-icon icon="search" aria-hidden="true"></b-icon
-      >&nbsp;&nbsp;Chercher&nbsp;&nbsp; </b-button
-    ><b-button class="button" variant="danger" @click="reset()"
-      ><b-icon icon="arrow-repeat" aria-hidden="true"></b-icon
-      >&nbsp;&nbsp;Reset&nbsp;&nbsp;
-    </b-button>
+        ><b-icon icon="search" aria-hidden="true"></b-icon
+        >&nbsp;&nbsp;Chercher&nbsp;&nbsp; </b-button
+      ><b-button class="button" variant="danger" @click="reset()"
+        ><b-icon icon="arrow-repeat" aria-hidden="true"></b-icon
+        >&nbsp;&nbsp;Reset&nbsp;&nbsp;
+      </b-button>
     </b-row>
 
-    
     <div>
       <div v-if="this.FiltredRecette == null" class="text-center">
         <b-spinner variant="danger" label="Text Centered"></b-spinner>
@@ -92,7 +97,8 @@
                 <h4>{{ item.Nom }}</h4>
               </b-col>
               <b-col md="1">
-                <b-button v-if="role == 'admin' || role == 'user'"
+                <b-button
+                  v-if="role == 'admin' || role == 'user'"
                   class="badgerate"
                   @click="AddStars(item)"
                   variant="warning"
@@ -225,11 +231,11 @@
 </template>
 
 <script>
-import { BButton } from "bootstrap-vue";
+import { BButton } from 'bootstrap-vue';
 
-import { BModal } from "bootstrap-vue";
+import { BModal } from 'bootstrap-vue';
 
-import axios from "axios";
+import axios from 'axios';
 
 export default {
   components: {
@@ -240,7 +246,7 @@ export default {
     return {
       //FiltredRecette: null,
       Ingrédients: [],
-      Ingrédient: "",
+      Ingrédient: '',
       relevance: 1,
       resetRecettes: [],
       tooltipVar: false,
@@ -248,32 +254,30 @@ export default {
       localHearts: []
     };
   },
-  props :{
-     role: {
-          type : String
-      },
-      FiltredRecette :{
-          required : true 
-      }
+  props: {
+    role: {
+      type: String
+    },
+    FiltredRecette: {
+      required: true
+    }
   },
   async beforeCreate() {
     axios //Get all recettes from the backend
-      .get("http://localhost:8082/bringRecettes")
+      .get('http://localhost:8082/bringRecettes')
       .then(resp => {
         this.FiltredRecette = resp.data;
         this.resetRecettes = resp.data;
       });
   },
   created() {
-    
-
     setTimeout(
       () => (this.tooltipVar = true),
 
       2000
     );
     setTimeout(
-      () => this.$refs.popover.$emit("disable"),
+      () => this.$refs.popover.$emit('disable'),
 
       7000
     );
@@ -290,7 +294,7 @@ export default {
       if (this.Ingrédients.length == 0) {
         return "Pas d'ingrédients";
       } else {
-        return "Les Ingrédients pour ce recherche";
+        return 'Les Ingrédients pour ce recherche';
       }
     }
   },
@@ -300,16 +304,16 @@ export default {
       if (this.CheckHearts(item.Nom) == true) {
         this.showModalRate();
       } else {
-        if (item["Hearts"] >= 0) {
-          item["Hearts"] += 1;
+        if (item['Hearts'] >= 0) {
+          item['Hearts'] += 1;
         } else {
           //item["Hearts"] = 1;
-          this.$set(item, "Hearts", 1);
+          this.$set(item, 'Hearts', 1);
         }
-        item.icon = "heart-fill";
+        item.icon = 'heart-fill';
         localStorage.setItem(item.Nom, item.Nom);
       }
-      axios.post("http://localhost:8082/addRate", item);
+      axios.post('http://localhost:8082/addRate', item);
     },
     CheckHearts(Nom) {
       var LovedBefore = { ...localStorage };
@@ -324,16 +328,16 @@ export default {
       } else return 0;
     },
     showModalRate() {
-      this.$refs["modal2"].show();
+      this.$refs['modal2'].show();
     },
     hideModalRate() {
-      this.$refs["modal2"].hide();
+      this.$refs['modal2'].hide();
     },
     showModalError() {
-      this.$refs["modal1"].show();
+      this.$refs['modal1'].show();
     },
     hideModalError() {
-      this.$refs["modal1"].hide();
+      this.$refs['modal1'].hide();
     },
     //reset button handler
     reset() {
@@ -341,10 +345,10 @@ export default {
       this.Ingrédients = [];
     },
     showModalSubmit() {
-      this.$refs["modal"].show();
+      this.$refs['modal'].show();
     },
     hideModalSubmit() {
-      this.$refs["modal"].hide();
+      this.$refs['modal'].hide();
     },
     ///handle the search
     filterRecettes() {
@@ -354,7 +358,7 @@ export default {
           Ingrédients: this.Ingrédients
         };
         axios //Get Recettes by sending the query to mongodb search index
-          .get("http://desolate-wildwood-60843.herokuapp.com/filterRecettes", {
+          .get('http://desolate-wildwood-60843.herokuapp.com/filterRecettes', {
             params
           })
           .then(resp => {
@@ -366,17 +370,20 @@ export default {
     },
     ///Add the ingredient to the ingredients list
     addIngrédient() {
-      if (this.Ingrédient == "") {
+      if (this.Ingrédient == '') {
         this.showModalError();
       } else {
         this.Ingrédients.push(this.Ingrédient);
-        this.Ingrédient = "";
+        this.Ingrédient = '';
       }
     }
   }
 };
 </script>
 <style scoped>
+.activeforguest {
+  pointer-events: none;
+}
 .mainDiv {
   height: auto;
   justify-content: center;
@@ -429,7 +436,7 @@ export default {
 }
 
 .icononclickItem:after {
-  content: "";
+  content: '';
   background: #000000;
   display: block;
   position: absolute;
@@ -474,7 +481,7 @@ export default {
   left: 50%;
   margin-left: -30px;
 }
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap');
 
 section {
   display: flex;

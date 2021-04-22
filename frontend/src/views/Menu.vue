@@ -25,16 +25,8 @@
         ></b-col
       >
       
-      <b-col align-self="center"
-        ><b-button  variant="dark"
-          >device detection(MFA)</b-button
-        ></b-col
-      >
-      <vue-country-code
-        @onSelect="onSelect"
-        :disabledFetchingCountry="true"
-      >
-      </vue-country-code>
+      
+      
     </b-row>
     <!-- <b-col align-self="baseline"
         >
